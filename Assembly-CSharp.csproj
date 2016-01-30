@@ -48,6 +48,7 @@
      <Compile Include="Assets\GaugeManager.cs" />
      <Compile Include="Assets\GoodZones.cs" />
      <Compile Include="Assets\Indicator.cs" />
+     <Compile Include="Assets\Intro.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/UnityInstall/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
