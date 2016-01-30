@@ -4,47 +4,45 @@ using System.Collections;
 public class Indicator : MonoBehaviour {
     GameObject collidedWith = null;
     public GameObject staticIndicator;
-    //public string str;
-    float foo = 0;
 
-    float amplitude=0;
-    float frequency=0;
+    float badZoneLength;
 
     bool move = false;
+    bool stop = false;
 
     int directionScalar = 1; //equals 1 when to the right, -1 when to the left
+
+    public float frequency = 2.0f;  // Speed of sine movement
+    private Vector3 axis;
+    private Vector3 pos;
 
 
 	// Use this for initialization
 	void Start () {
+        // badZoneLength = 2 * GameObject.Find("Bad Zone").transform.position.x - gameObject.transform.position.x;
+        badZoneLength = GameObject.Find("Bad Zone").transform.localScale.x;
+
+
         StartCoroutine("StartMove");
-	
+
+        
+        pos = transform.position;
+
 	}
-
-
-    /*
-     * TODO
-     * 
-     * mess with sin() to make a good speed
-     * 
-     * 
-     * 
-     */
 
 
     void FixedUpdate()
     {
-       //  foo += 0.0001f;
-        if (move)
+        if (move && !stop)
         {
-            gameObject.transform.localPosition = new Vector2(gameObject.transform.localPosition.x + 0.3f * directionScalar, gameObject.transform.localPosition.y); 
+
+            transform.position = pos + transform.right * (Mathf.Cos(Time.time * frequency) * badZoneLength * 3.1415f);
+
+            //gameObject.transform.localPosition = new Vector2(gameObject.transform.localPosition.x + 0.1f * directionScalar, gameObject.transform.localPosition.y); 
         }
-        //linear
-        //gameObject.transform.localPosition = new Vector2(gameObject.transform.localPosition.x - Mathf.Sin(foo*9) - 1, gameObject.transform.localPosition.y);
-        //print(Vector3.Distance(a,b);
+        
 
-
-         //gameObject.transform.position +=  (Mathf.Sin(2 * Mathf.PI * frequency * Time.time) - Mathf.Sin(2 * Mathf.PI * frequency * (Time.time - Time.deltaTime))) * transform.up;
+    
     }
 
 	// Update is called once per frame
@@ -54,18 +52,40 @@ public class Indicator : MonoBehaviour {
         {
             if (collidedWith == null)
             {
+                stop = true;
                 print("You do lose!");
+                directionScalar = 0;
             }
 
-            else if (collidedWith.name.Contains("Good Zone"))
+            else if (collidedWith.name.Contains("Good Zone") && !collidedWith.GetComponent<GoodZones>().GetGot())
             {
                 GameObject spawn;
 
                 spawn = Instantiate(staticIndicator);
-
                 spawn.transform.position = gameObject.transform.position;
                 
-                //print("You do win!");
+                print("You do win!");
+                collidedWith.GetComponent<GoodZones>().SetGot(true);
+
+                //check if all green has been got
+                bool sucess = true;
+                bool[] foo = GameObject.Find("Bad Zone").GetComponent<GaugeManager>().GetZoneBool();
+
+                foreach(bool i in foo) {
+                    if (!i) {
+                        sucess = false;
+                    }
+                }
+
+                if (sucess) {
+                    stop = true;
+                    directionScalar = 0;
+                }
+
+                //print(" [0] = " + GameObject.Find("Bad Zone").GetComponent<GaugeManager>().GetZoneBool()[0]);
+                //print(" [1] = " + GameObject.Find("Bad Zone").GetComponent<GaugeManager>().GetZoneBool()[1]);
+
+
             }
 
         }
@@ -89,10 +109,7 @@ public class Indicator : MonoBehaviour {
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (collidedWith == other.gameObject)
-        {
-            collidedWith = null;
-        }
+        collidedWith = null;
 
     }
 
